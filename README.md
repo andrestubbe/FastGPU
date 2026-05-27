@@ -11,8 +11,7 @@
 **⚡ Advanced GPU-accelerated computing and rendering for the FastJava ecosystem. Harness the power of DirectX, OpenCL, and
 Vulkan directly from Java.**
 
-**FastGPU** provides a high-performance bridge to modern graphics APIs. Built for developers who need to perform complex
-parallel computations or real-time rendering with minimal overhead.
+FastGPU provides a high-performance bridge to modern graphics APIs for complex parallel computations and real-time rendering.
 ---
 
 [![FastKeyboard Showcase](docs/screenshot.png)](https://www.youtube.com/watch?v=BZsqQl7WqWk)
