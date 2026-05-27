@@ -14,6 +14,7 @@ struct VulkanContext {
     VkQueue computeQueue = VK_NULL_HANDLE;
     uint32_t queueFamilyIndex = 0;
     VkCommandPool commandPool = VK_NULL_HANDLE;
+    VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
 
     VulkanContext();
     ~VulkanContext();

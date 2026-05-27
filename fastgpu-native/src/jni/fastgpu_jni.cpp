@@ -1,6 +1,7 @@
 #include <jni.h>
 #include <cstdint>
 #include <string>
+#include <iostream>
 #include <vector>
 #include "../vk/vk_context.h"
 #include "../vk/vk_buffer.h"
@@ -91,6 +92,22 @@ Java_fastgpu_FastGPUImpl_nativeAllocImage(JNIEnv*, jclass, jlong handle, jint w,
     return reinterpret_cast<jlong>(image);
 }
 
+JNIEXPORT jbyteArray JNICALL Java_fastgpu_FastGPUImage_nativeDownload(JNIEnv *env, jobject, jlong ctxHandle, jlong imageHandle) {
+    auto* ctx = reinterpret_cast<vk::VulkanContext*>(ctxHandle);
+    auto* image = reinterpret_cast<vk::Image*>(imageHandle);
+
+    jbyteArray result = env->NewByteArray(image->size);
+    void* data = env->GetPrimitiveArrayCritical(result, nullptr);
+    try {
+        vk::downloadFromImage(*ctx, *image, data, image->size);
+    } catch (const std::exception& e) {
+        std::cerr << "[FastGPU Native] Download Exception: " << e.what() << std::endl;
+    }
+    env->ReleasePrimitiveArrayCritical(result, data, 0);
+
+    return result;
+}
+
 JNIEXPORT void JNICALL
 Java_fastgpu_FastGPUImpl_nativeFreeImage(JNIEnv*, jclass, jlong handle, jlong imageHandle) {
     auto* ctx = reinterpret_cast<vk::VulkanContext*>(handle);
@@ -142,21 +159,31 @@ Java_fastgpu_FastGPUImpl_nativeDestroyKernel(JNIEnv*, jclass, jlong handle) {
 JNIEXPORT jint JNICALL
 Java_fastgpu_FastGPUImpl_nativeDispatchKernel(JNIEnv* env, jclass, jlong handle, jlong kernelHandle,
                                               jint x, jint y, jint z,
-                                              jlongArray jbuffers) {
+                                              jlongArray jbuffers, jlongArray jimages) {
     auto* ctx = reinterpret_cast<vk::VulkanContext*>(handle);
     auto* pipeline = reinterpret_cast<vk::Pipeline*>(kernelHandle);
     
-    jsize len = env->GetArrayLength(jbuffers);
-    jlong* bufferHandles = env->GetLongArrayElements(jbuffers, nullptr);
-    
-    std::vector<VkBuffer> vkBuffers;
-    for (int i = 0; i < len; i++) {
-        // Technically these could be vk::Buffer or vk::Image, but they are all passed as jlong.
-        // For the dispatch stub we just ignore them or cast them if needed.
+    std::vector<vk::Buffer*> vkBuffers;
+    if (jbuffers != nullptr) {
+        jsize len = env->GetArrayLength(jbuffers);
+        jlong* bufferHandles = env->GetLongArrayElements(jbuffers, nullptr);
+        for (int i = 0; i < len; i++) {
+            vkBuffers.push_back(reinterpret_cast<vk::Buffer*>(bufferHandles[i]));
+        }
+        env->ReleaseLongArrayElements(jbuffers, bufferHandles, JNI_ABORT);
     }
-    env->ReleaseLongArrayElements(jbuffers, bufferHandles, JNI_ABORT);
 
-    vk::dispatchCompute(*ctx, *pipeline, x, y, z, vkBuffers);
+    std::vector<vk::Image*> vkImages;
+    if (jimages != nullptr) {
+        jsize len = env->GetArrayLength(jimages);
+        jlong* imageHandles = env->GetLongArrayElements(jimages, nullptr);
+        for (int i = 0; i < len; i++) {
+            vkImages.push_back(reinterpret_cast<vk::Image*>(imageHandles[i]));
+        }
+        env->ReleaseLongArrayElements(jimages, imageHandles, JNI_ABORT);
+    }
+
+    vk::dispatchCompute(*ctx, *pipeline, x, y, z, vkBuffers, vkImages);
     return 0;
 }
 

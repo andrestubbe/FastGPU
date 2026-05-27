@@ -14,5 +14,7 @@ public interface FastGPUImage {
 
     BufferedImage download();
 
+    void downloadInto(BufferedImage img);
+
     void free();
 }

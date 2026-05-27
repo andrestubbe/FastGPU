@@ -73,13 +73,22 @@ final class FastGPUImpl implements FastGPU {
         Objects.requireNonNull(args, "args");
 
         Object[] flatArgs = args.args().toArray();
-        long[] bufferHandles = new long[flatArgs.length];
-        for (int i = 0; i < flatArgs.length; i++) {
-            Object o = flatArgs[i];
+        int numBuffers = 0;
+        int numImages = 0;
+        for (Object o : flatArgs) {
+            if (o instanceof BufferImpl) numBuffers++;
+            else if (o instanceof ImageImpl) numImages++;
+        }
+
+        long[] bufferHandles = new long[numBuffers];
+        long[] imageHandles = new long[numImages];
+        int bIdx = 0, iIdx = 0;
+
+        for (Object o : flatArgs) {
             if (o instanceof BufferImpl b) {
-                bufferHandles[i] = b.handle;
+                bufferHandles[bIdx++] = b.handle;
             } else if (o instanceof ImageImpl img) {
-                bufferHandles[i] = img.handle;
+                imageHandles[iIdx++] = img.handle;
             } else {
                 throw new IllegalArgumentException("Unsupported kernel arg type: " + o);
             }
@@ -89,7 +98,8 @@ final class FastGPUImpl implements FastGPU {
                 nativeHandle,
                 k.handle,
                 size.x(), size.y(), size.z(),
-                bufferHandles
+                bufferHandles,
+                imageHandles
         );
         if (result != 0) {
             throw new FastGPUException("Kernel dispatch failed with code: " + result);
@@ -184,9 +194,16 @@ final class FastGPUImpl implements FastGPU {
 
         @Override
         public BufferedImage download() {
-            ByteBuffer buf = ByteBuffer.allocateDirect(width * height * 4); // RGBA8 baseline
+            BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+            downloadInto(img);
+            return img;
+        }
+
+        @Override
+        public void downloadInto(BufferedImage img) {
+            ByteBuffer buf = FastGPUImageUtil.toByteBuffer(img, format);
             nativeDownloadImage(nativeHandle, handle, buf, width, height, format.name());
-            return FastGPUImageUtil.fromByteBuffer(buf, width, height, format);
+            FastGPUImageUtil.fromByteBufferInto(buf, img, format);
         }
 
         @Override
@@ -241,5 +258,6 @@ final class FastGPUImpl implements FastGPU {
 
     private static native int nativeDispatchKernel(long ctx, long kernelHandle,
                                                    int x, int y, int z,
-                                                   long[] bufferHandles);
+                                                   long[] bufferHandles,
+                                                   long[] imageHandles);
 }

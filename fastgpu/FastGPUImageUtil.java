@@ -28,19 +28,24 @@ final class FastGPUImageUtil {
         return buf;
     }
 
-    static BufferedImage fromByteBuffer(ByteBuffer buf, int w, int h, Format fmt) {
-        BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
-                int r = buf.get() & 0xFF;
-                int g = buf.get() & 0xFF;
-                int b = buf.get() & 0xFF;
-                int a = buf.get() & 0xFF;
-                int argb = (a << 24) | (r << 16) | (g << 8) | b;
-                img.setRGB(x, y, argb);
-            }
+    static void fromByteBufferInto(ByteBuffer buf, BufferedImage img, Format fmt) {
+        int w = img.getWidth();
+        int h = img.getHeight();
+        int[] pixels = new int[w * h];
+        byte[] raw = new byte[w * h * 4];
+        
+        buf.rewind();
+        buf.get(raw); // Bulk JNI copy (extremely fast)
+        
+        for (int i = 0; i < w * h; i++) {
+            int idx = i * 4;
+            int r = raw[idx] & 0xFF;
+            int g = raw[idx + 1] & 0xFF;
+            int b = raw[idx + 2] & 0xFF;
+            int a = raw[idx + 3] & 0xFF;
+            pixels[i] = (a << 24) | (r << 16) | (g << 8) | b;
         }
-        return img;
+        img.setRGB(0, 0, w, h, pixels, 0, w);
     }
 
     private FastGPUImageUtil() {}

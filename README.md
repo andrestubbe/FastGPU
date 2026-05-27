@@ -1,4 +1,4 @@
-# FastGPU — High-Performance Native GPU Acceleration for Java [v0.1.0]
+﻿# FastGPU — High-Performance Native GPU Acceleration for Java [v0.1.0]
 
 [![Status](https://img.shields.io/badge/status-v0.1.0-brightgreen.svg)](https://github.com/andrestubbe/FastGPU/releases/tag/v0.1.0)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -11,7 +11,7 @@
 **⚡ Advanced GPU-accelerated computing and rendering for the FastJava ecosystem. Harness the power of DirectX, OpenCL, and
 Vulkan directly from Java.**
 
-* FastGPU provides a high-performance bridge to modern graphics APIs for complex parallel computations and real-time rendering.
+FastGPU provides a high-performance bridge to modern graphics APIs for complex parallel computations and real-time rendering.
 
 ---
 
