@@ -12,6 +12,7 @@
 Vulkan directly from Java.**
 
 FastGPU provides a high-performance bridge to modern graphics APIs for complex parallel computations and real-time rendering.
+
 ---
 
 [![FastKeyboard Showcase](docs/screenshot.png)](https://www.youtube.com/watch?v=BZsqQl7WqWk)
