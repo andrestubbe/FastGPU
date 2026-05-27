@@ -15,24 +15,32 @@ public class MandelbrotDemo extends JPanel {
     private final FastGPUBuffer paramBuffer;
 
     private BufferedImage currentFrame;
+    private BufferedImage highResFrame;
     private float centerX = -0.5f;
     private float centerY = 0.0f;
     private float zoom = 1.0f;
 
-    private boolean isDragging = false;
     private int lastMouseX = 0;
     private int lastMouseY = 0;
     private boolean isMousePressed = false;
     private boolean isShiftPressed = false;
     private float targetZoomVel = 0.0f;
     private float zoomVel = 0.0f;
-    
     private float panVelX = 0.0f;
     private float panVelY = 0.0f;
-    private float currentMaxIter = 128.0f;
+
+    // Quality transition state
+    private volatile boolean isMoving = false;
+    private volatile float fadeAlpha = 1.0f;
+    private volatile boolean highResReady = false;
+    private long transitionStartTime = 0;
 
     private static final int WIDTH = 1130;
     private static final int HEIGHT = 640;
+
+    // Iterations: 64 during flight (fast), 128 at rest (quality + 4xSSAA)
+    private static final int ITER_MOVING = 64;
+    private static final int ITER_STILL  = 128;
 
     private long lastTime = System.nanoTime();
     private int frameCount = 0;
@@ -41,7 +49,7 @@ public class MandelbrotDemo extends JPanel {
     public MandelbrotDemo(JFrame frame) {
         this.parentFrame = frame;
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
-        
+
         gpu = FastGPU.openDefault();
         gpuOutput = gpu.allocImage(WIDTH, HEIGHT, Format.RGBA8);
         paramBuffer = gpu.allocFloatBuffer(4); // [cx, cy, zoom, max_iter]
@@ -54,7 +62,7 @@ public class MandelbrotDemo extends JPanel {
                     float cx;
                     float cy;
                     float zoom;
-                    float dyn_max_iter;
+                    float max_iter_f;
                 };
                 
                 layout(rgba8, binding = 4) uniform writeonly image2D outputImg;
@@ -64,36 +72,49 @@ public class MandelbrotDemo extends JPanel {
                     ivec2 size = imageSize(outputImg);
                     if(pos.x >= size.x || pos.y >= size.y) return;
                     
-                    vec3 totalColor = vec3(0.0);
+                    int max_iter = int(max_iter_f);
+                    bool doSSAA = (max_iter_f > 100.0); // 4xSSAA only at 128 iters (still mode)
                     float aspectZoom = 1.5 / zoom;
-                    int max_iter = 128;
                     
-                    vec2 uv = vec2(pos) / vec2(size) * 2.0 - 1.0;
-                    uv.x *= float(size.x) / float(size.y);
+                    const vec2 offsets[4] = vec2[4](
+                        vec2(-0.25, -0.25),
+                        vec2( 0.25, -0.25),
+                        vec2(-0.25,  0.25),
+                        vec2( 0.25,  0.25)
+                    );
                     
-                    vec2 c = vec2(cx, cy) + uv * aspectZoom;
-                    vec2 z = vec2(0.0);
-                    int i;
-                    for(i = 0; i < max_iter; i++) {
-                        float x = (z.x * z.x - z.y * z.y) + c.x;
-                        float y = (2.0 * z.x * z.y) + c.y;
-                        z.x = x;
-                        z.y = y;
-                        if((x * x + y * y) > 4.0) break;
+                    int samples = doSSAA ? 4 : 1;
+                    vec3 totalColor = vec3(0.0);
+                    
+                    for (int s = 0; s < samples; s++) {
+                        vec2 jitter = doSSAA ? offsets[s] : vec2(0.0);
+                        vec2 uv = (vec2(pos) + jitter + 0.5) / vec2(size) * 2.0 - 1.0;
+                        uv.x *= float(size.x) / float(size.y);
+                        
+                        vec2 c = vec2(cx, cy) + uv * aspectZoom;
+                        vec2 z = vec2(0.0);
+                        int i;
+                        for(i = 0; i < max_iter; i++) {
+                            float x = (z.x * z.x - z.y * z.y) + c.x;
+                            float y = (2.0 * z.x * z.y) + c.y;
+                            z.x = x;
+                            z.y = y;
+                            if((x * x + y * y) > 4.0) break;
+                        }
+                        
+                        vec3 color;
+                        if(i == max_iter) {
+                            color = vec3(1.0);
+                        } else {
+                            float smoothed = float(i) + 1.0 - log2(log2(z.x*z.x + z.y*z.y) / 2.0);
+                            float intensity = smoothed / 128.0; // always normalize to 128 for consistent brightness
+                            intensity = clamp(pow(intensity, 1.2) * 2.0, 0.0, 1.0);
+                            color = vec3(intensity);
+                        }
+                        totalColor += color;
                     }
                     
-                    vec3 color;
-                    if(i == max_iter) {
-                        color = vec3(1.0); // Inside is white
-                    } else {
-                        // Continuous smooth iteration count
-                        float smoothed = float(i) + 1.0 - log2(log2(z.x*z.x + z.y*z.y) / 2.0);
-                        float intensity = smoothed / float(max_iter);
-                        intensity = clamp(pow(intensity, 1.2) * 2.0, 0.0, 1.0); 
-                        color = vec3(intensity);
-                    }
-                    
-                    imageStore(outputImg, pos, vec4(color, 1.0));
+                    imageStore(outputImg, pos, vec4(totalColor / float(samples), 1.0));
                 }
                 """;
 
@@ -135,12 +156,12 @@ public class MandelbrotDemo extends JPanel {
             }
         });
 
-        // Render Loop (Uncapped / High FPS)
+        // Render Loop
         Thread renderThread = new Thread(() -> {
             while (true) {
                 renderFrame();
                 try {
-                    Thread.sleep(4); // target roughly 250 FPS logical cap, rendering is GPU limited
+                    Thread.sleep(4);
                 } catch (InterruptedException ex) {
                     break;
                 }
@@ -151,34 +172,45 @@ public class MandelbrotDemo extends JPanel {
     }
 
     private void renderFrame() {
-        // Handle input momentum
+        // Input momentum
         if (isMousePressed) {
             targetZoomVel = isShiftPressed ? -0.01f : 0.01f;
-            
-            // Steer towards mouse position
             float dx = (lastMouseX - WIDTH / 2.0f) / (float) WIDTH;
             float dy = (lastMouseY - HEIGHT / 2.0f) / (float) HEIGHT;
-            
-            // Add momentum in the direction of the mouse
             panVelX += dx * 0.002f;
             panVelY += dy * 0.002f;
-            
         } else {
             targetZoomVel = 0.0f;
         }
-        
-        // Accelerate / Decelerate zoom
+
         zoomVel += (targetZoomVel - zoomVel) * 0.05f;
         zoom *= (1.0f + zoomVel);
-        
-        // Decelerate pan smoothly
         panVelX *= 0.95f;
         panVelY *= 0.95f;
-        
-        centerX += panVelX * 3.0f / zoom * ((float)WIDTH/HEIGHT);
+        centerX += panVelX * 3.0f / zoom * ((float) WIDTH / HEIGHT);
         centerY += panVelY * 3.0f / zoom;
-        
-        paramBuffer.upload(new float[]{centerX, centerY, zoom, 128.0f});
+
+        boolean nowMoving = (Math.abs(zoomVel) > 1e-5f || Math.abs(panVelX) > 1e-5f || Math.abs(panVelY) > 1e-5f || isMousePressed);
+
+        // Transition: moving → stopped → freeze position, start hi-qual render
+        if (isMoving && !nowMoving) {
+            panVelX = 0.0f;
+            panVelY = 0.0f;
+            zoomVel = 0.0f;
+            highResReady = false;
+            fadeAlpha = 0.0f;
+        }
+        isMoving = nowMoving;
+
+        // Advance crossfade only once first hi-res frame is ready
+        if (!isMoving && highResReady && fadeAlpha < 1.0f) {
+            float elapsed = (System.nanoTime() - transitionStartTime) / 1_000_000_000f;
+            fadeAlpha = Math.min(1.0f, elapsed / 1.5f);
+        }
+
+        // Choose iteration count: fast during flight, full quality at rest
+        float maxIter = isMoving ? ITER_MOVING : ITER_STILL;
+        paramBuffer.upload(new float[]{centerX, centerY, zoom, maxIter});
 
         gpu.dispatch(
                 kernel,
@@ -186,21 +218,30 @@ public class MandelbrotDemo extends JPanel {
                 KernelArgs.of(paramBuffer, gpuOutput)
         );
 
-        if (currentFrame == null) {
-            currentFrame = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_4BYTE_ABGR);
-        }
+        if (currentFrame == null) currentFrame = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_4BYTE_ABGR);
         gpuOutput.downloadInto(currentFrame);
+
+        if (!isMoving) {
+            // Copy into hi-res buffer for crossfade
+            if (highResFrame == null) highResFrame = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_4BYTE_ABGR);
+            gpuOutput.downloadInto(highResFrame);
+            if (!highResReady) {
+                highResReady = true;
+                transitionStartTime = System.nanoTime();
+                fadeAlpha = 0.0f;
+            }
+        }
+
         repaint();
 
         // FPS Counter
         frameCount++;
         long now = System.nanoTime();
         if (now - lastTime >= 1_000_000_000L) {
-            final int currentFps = frameCount;
+            final int fps = frameCount;
             SwingUtilities.invokeLater(() -> {
-                if (parentFrame != null) {
-                    parentFrame.setTitle(String.format("FastGPU Real-Time Mandelbrot - %d FPS", currentFps));
-                }
+                if (parentFrame != null)
+                    parentFrame.setTitle(String.format("FastGPU Real-Time Mandelbrot - %d FPS", fps));
             });
             frameCount = 0;
             lastTime = now;
@@ -210,14 +251,31 @@ public class MandelbrotDemo extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (currentFrame != null) {
-            g.drawImage(currentFrame, 0, 0, this);
+        Graphics2D g2d = (Graphics2D) g.create();
+
+        BufferedImage base = currentFrame;
+        BufferedImage hi   = highResFrame;
+        float alpha        = fadeAlpha;
+
+        if (base != null) {
+            g2d.drawImage(base, 0, 0, getWidth(), getHeight(), null);
         }
+
+        // Crossfade hi-res (128 iter + SSAA) over lo-qual (64 iter) when stopping
+        if (!isMoving && hi != null && highResReady && alpha < 1.0f) {
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+            g2d.drawImage(hi, 0, 0, getWidth(), getHeight(), null);
+            repaint();
+        } else if (!isMoving && hi != null && highResReady) {
+            g2d.drawImage(hi, 0, 0, getWidth(), getHeight(), null);
+        }
+
+        g2d.dispose();
     }
 
     public static void main(String[] args) {
         System.setProperty("sun.java2d.uiScale", "1.0");
-        System.setProperty("sun.java2d.opengl", "true"); // Enable hardware acceleration for Java2D
+        System.setProperty("sun.java2d.opengl", "true");
         System.out.println("Starting FastGPU Mandelbrot Demo...");
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("FastGPU Real-Time Mandelbrot");
@@ -226,12 +284,12 @@ public class MandelbrotDemo extends JPanel {
             frame.add(demo);
             frame.pack();
             frame.setLocationRelativeTo(null);
-            
+
             long hwnd = fasttheme.FastTheme.getWindowHandle(frame);
             fasttheme.FastTheme.setTitleBarDarkMode(hwnd, true);
             fasttheme.FastTheme.setTitleBarColor(hwnd, 0, 0, 0);
             fasttheme.FastTheme.setTitleBarTextColor(hwnd, 255, 255, 255);
-            
+
             frame.setVisible(true);
         });
     }
