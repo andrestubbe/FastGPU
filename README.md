@@ -15,7 +15,7 @@ FastGPU provides a high-performance bridge to modern graphics APIs for complex p
 
 ---
 
-[![FastKeyboard Showcase](docs/screenshot.png)](https://www.youtube.com/watch?v=BZsqQl7WqWk)
+[![FastGPU Showcase](docs/screenshot2.png)](https://www.youtube.com/watch?v=BZsqQl7WqWk)
 
 ---
 
