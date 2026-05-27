@@ -9,7 +9,7 @@ import java.util.Objects;
 final class FastGPUImpl implements FastGPU {
 
     static {
-        FastCore.loadNative("fastgpu"); // erwartet fastgpu-native
+        FastCore.loadLibrary("fastgpu"); // erwartet fastgpu-native
     }
 
     private final long nativeHandle;
