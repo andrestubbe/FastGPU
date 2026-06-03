@@ -1,4 +1,4 @@
-﻿# FastGPU — High-Performance Native GPU Acceleration for Java [v0.1.0]
+# FastGPU � High-Performance Native GPU Acceleration for Java [v0.1.0]
 
 [![Status](https://img.shields.io/badge/status-v0.1.0-brightgreen.svg)](https://github.com/andrestubbe/FastGPU/releases/tag/v0.1.0)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -8,7 +8,7 @@
 
 ---
 
-**⚡ Advanced GPU-accelerated computing and rendering for the FastJava ecosystem. Harness the power of DirectX, OpenCL, and
+**? Advanced GPU-accelerated computing and rendering for the FastJava ecosystem. Harness the power of DirectX, OpenCL, and
 Vulkan directly from Java.**
 
 FastGPU provides a high-performance bridge to modern graphics APIs for complex parallel computations and real-time rendering.
@@ -30,10 +30,10 @@ FastGPU provides a high-performance bridge to modern graphics APIs for complex p
 
 ## Features
 
-- **🎮 DirectX Integration**: High-speed rendering and compute via D3D11/D3D12.
-- **⚡ OpenCL Support**: Cross-platform GPU-accelerated parallel computing.
-- **📦 Zero-Copy Buffers**: Efficient data sharing between CPU and GPU.
-- **🚀 High Throughput**: Optimized for real-time vision and rendering pipelines.
+- **?? DirectX Integration**: High-speed rendering and compute via D3D11/D3D12.
+- **? OpenCL Support**: Cross-platform GPU-accelerated parallel computing.
+- **?? Zero-Copy Buffers**: Efficient data sharing between CPU and GPU.
+- **?? High Throughput**: Optimized for real-time vision and rendering pipelines.
 
 ---
 
@@ -94,9 +94,9 @@ dependencies {
 
 Download the latest JARs directly to add them to your classpath:
 
-1. 📦 **[fastgpu-v0.1.0.jar](https://github.com/andrestubbe/FastGPU/releases/download/v0.1.0/fastgpu-v0.1.0.jar)** (The
+1. ?? **[fastgpu-v0.1.0.jar](https://github.com/andrestubbe/FastGPU/releases/download/v0.1.0/fastgpu-v0.1.0.jar)** (The
    Core Library)
-2. ⚙️ **[fastcore-v0.1.0.jar](https://github.com/andrestubbe/FastCore/releases/download/v0.1.0/fastcore-v0.1.0.jar)** (
+2. ?? **[fastcore-v0.1.0.jar](https://github.com/andrestubbe/FastCore/releases/download/v0.1.0/fastcore-v0.1.0.jar)** (
    The Mandatory Native Loader)
 
 ---
@@ -105,7 +105,7 @@ Download the latest JARs directly to add them to your classpath:
 
 * **[COMPILE.md](COMPILE.md)**: Full compilation guide (MSVC C++17 build chain + JNI Setup).
 * **[REFERENCE.md](docs/REFERENCE.md)**: Full API descriptions, border configurations, and codepoint index.
-* **[PHILOSOPHIE.md](docs/PHILOSOPHIE.md)**: The engineering rationale for zero-allocation performance.
+* **[PHILOSOPHY.md](docs/PHILOSOPHY.md)**: The engineering rationale for zero-allocation performance.
 * **[ROADMAP.md](docs/ROADMAP.md)**: Future milestones and planned features.
 
 ---
@@ -114,27 +114,27 @@ Download the latest JARs directly to add them to your classpath:
 
 | Platform      | Status            |
 |---------------|-------------------|
-| Windows 10/11 | ✅ Fully Supported |
-| Linux         | 🚧 Planned        |
-| macOS         | 🚧 Planned        |
+| Windows 10/11 | ? Fully Supported |
+| Linux         | ?? Planned        |
+| macOS         | ?? Planned        |
 
 ---
 
 ## License
 
-MIT License — See [LICENSE](LICENSE) for details.
+MIT License � See [LICENSE](LICENSE) for details.
 
 ---
 
 ## Related Projects
 
-- [FastCore](https://github.com/andrestubbe/FastCore) — Native Library Loader for Java
-- [FastAudioPlayer](https://github.com/andrestubbe/FastAudioPlayer) — Native Windows WASAPI Audio Playback for Java
-- [FastTTS](https://github.com/andrestubbe/FastTTS) — High-Performance Native Windows TTS API for Java
-- [FastSTT](https://github.com/andrestubbe/FastSTT) — Ultra-Fast Native Speech-to-Text for Java
+- [FastCore](https://github.com/andrestubbe/FastCore) � Native Library Loader for Java
+- [FastAudioPlayer](https://github.com/andrestubbe/FastAudioPlayer) � Native Windows WASAPI Audio Playback for Java
+- [FastTTS](https://github.com/andrestubbe/FastTTS) � High-Performance Native Windows TTS API for Java
+- [FastSTT](https://github.com/andrestubbe/FastSTT) � Ultra-Fast Native Speech-to-Text for Java
 - [FastWakeWord](https://github.com/andrestubbe/FastWakeWord)
 
 ---
 
-**Part of the FastJava Ecosystem** — *Making the JVM faster. Small package. Maximum speed. Zero bloat. 🚀📋*
+**Part of the FastJava Ecosystem** � *Making the JVM faster. Small package. Maximum speed. Zero bloat. ????*
 
