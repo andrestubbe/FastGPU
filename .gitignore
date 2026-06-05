@@ -1,0 +1,8 @@
+﻿target/
+build/
+*.so
+*.dylib
+*.class
+.idea/
+*.iml
+!src/main/resources/native/*.dll
