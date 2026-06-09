@@ -1,0 +1,41 @@
+#version 450
+layout(local_size_x = 16, local_size_y = 16) in;
+
+layout(std430, binding = 0) buffer Params {
+    float time;
+    float aspect;
+    float padding0;
+    float padding1;
+};
+
+layout(rgba8, binding = 1) uniform writeonly image2D outputImg;
+
+float palette(float x) {
+    return clamp(0.5 + 0.5 * cos(6.2831853 * (x + vec2(0.0, 0.33))[0] ), 0.0, 1.0);
+}
+
+void main() {
+    ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 size = imageSize(outputImg);
+    if (pos.x >= size.x || pos.y >= size.y) return;
+
+    vec2 uv = (vec2(pos) / vec2(size)) * 2.0 - 1.0;
+    uv.x *= aspect;
+    float t = time * 0.7;
+
+    float r = length(uv);
+    float a = atan(uv.y, uv.x);
+    float pulse = sin(r * 8.0 - t * 5.0) * 0.5 + 0.5;
+    float twist = sin(a * 3.0 + t * 2.0) * 0.5 + 0.5;
+    float waves = sin(uv.x * 5.0 + t) * 0.5 + 0.5;
+
+    float q = pulse * twist * waves;
+    vec3 col = vec3(
+        0.5 + 0.5 * cos(3.0 + q * 3.0 + vec3(0.0, 1.2, 2.4)),
+        0.5 + 0.5 * cos(1.5 + q * 3.0 + vec3(0.0, 1.2, 2.4)),
+        0.5 + 0.5 * cos(0.0 + q * 3.0 + vec3(0.0, 1.2, 2.4))
+    );
+    col *= 1.0 - smoothstep(0.8, 1.0, r);
+
+    imageStore(outputImg, pos, vec4(col, 1.0));
+}

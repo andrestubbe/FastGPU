@@ -47,6 +47,11 @@ For runtime GLSL kernel compilation (v0.2+), FastGPU requires the Vulkan SDK to 
 winget install KhronosGroup.VulkanSDK
 ```
 
+### Demo Launcher
+
+- `run-demo.bat` starts the existing FastGPU demo.
+- `run-demo2.bat` starts the new fast fluid demo from `examples/Demo2`.
+
 ### Option 1: Maven (Recommended)
 
 Add the JitPack repository and the dependencies to your `pom.xml`:

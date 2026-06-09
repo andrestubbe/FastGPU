@@ -156,7 +156,6 @@ public class MandelbrotDemo extends JPanel {
             }
         });
 
-        // Render Loop
         Thread renderThread = new Thread(() -> {
             while (true) {
                 renderFrame();
@@ -172,7 +171,6 @@ public class MandelbrotDemo extends JPanel {
     }
 
     private void renderFrame() {
-        // Input momentum
         if (isMousePressed) {
             targetZoomVel = isShiftPressed ? -0.01f : 0.01f;
             float dx = (lastMouseX - WIDTH / 2.0f) / (float) WIDTH;
@@ -192,7 +190,6 @@ public class MandelbrotDemo extends JPanel {
 
         boolean nowMoving = (Math.abs(zoomVel) > 1e-5f || Math.abs(panVelX) > 1e-5f || Math.abs(panVelY) > 1e-5f || isMousePressed);
 
-        // Transition: moving → stopped → freeze position, start hi-qual render
         if (isMoving && !nowMoving) {
             panVelX = 0.0f;
             panVelY = 0.0f;
@@ -202,13 +199,11 @@ public class MandelbrotDemo extends JPanel {
         }
         isMoving = nowMoving;
 
-        // Advance crossfade only once first hi-res frame is ready
         if (!isMoving && highResReady && fadeAlpha < 1.0f) {
             float elapsed = (System.nanoTime() - transitionStartTime) / 1_000_000_000f;
             fadeAlpha = Math.min(1.0f, elapsed / 1.5f);
         }
 
-        // Choose iteration count: fast during flight, full quality at rest
         float maxIter = isMoving ? ITER_MOVING : ITER_STILL;
         paramBuffer.upload(new float[]{centerX, centerY, zoom, maxIter});
 
@@ -222,7 +217,6 @@ public class MandelbrotDemo extends JPanel {
         gpuOutput.downloadInto(currentFrame);
 
         if (!isMoving) {
-            // Copy into hi-res buffer for crossfade
             if (highResFrame == null) highResFrame = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_4BYTE_ABGR);
             gpuOutput.downloadInto(highResFrame);
             if (!highResReady) {
@@ -234,7 +228,6 @@ public class MandelbrotDemo extends JPanel {
 
         repaint();
 
-        // FPS Counter
         frameCount++;
         long now = System.nanoTime();
         if (now - lastTime >= 1_000_000_000L) {
@@ -261,7 +254,6 @@ public class MandelbrotDemo extends JPanel {
             g2d.drawImage(base, 0, 0, getWidth(), getHeight(), null);
         }
 
-        // Crossfade hi-res (128 iter + SSAA) over lo-qual (64 iter) when stopping
         if (!isMoving && hi != null && highResReady && alpha < 1.0f) {
             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
             g2d.drawImage(hi, 0, 0, getWidth(), getHeight(), null);

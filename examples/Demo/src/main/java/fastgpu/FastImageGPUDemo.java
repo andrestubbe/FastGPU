@@ -15,7 +15,6 @@ public class FastImageGPUDemo {
         int height = 4096;
         System.out.printf("Generating %dx%d test image (16 Megapixels)...%n", width, height);
 
-        // 1. Generate test image
         BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Random rand = new Random();
         for (int y = 0; y < height; y++) {
@@ -29,9 +28,6 @@ public class FastImageGPUDemo {
 
         FastImage cpuImg = FastImage.fromBufferedImage(bi);
 
-        // ==========================================
-        // 2. CPU BENCHMARK (FastImage AVX2/SIMD)
-        // ==========================================
         System.out.println("\n[1] Running CPU Benchmark (FastImage SIMD)...");
         long cpuStart = System.nanoTime();
         cpuImg.grayscale();
@@ -39,20 +35,14 @@ public class FastImageGPUDemo {
         double cpuMs = (cpuEnd - cpuStart) / 1_000_000.0;
         System.out.printf("    CPU Grayscale Time: %.2f ms%n", cpuMs);
 
-        // ==========================================
-        // 3. GPU BENCHMARK (FastGPU Vulkan Compute)
-        // ==========================================
         System.out.println("\n[2] Running GPU Benchmark (FastGPU Vulkan)...");
 
         try (FastGPU gpu = FastGPU.openDefault()) {
-            
-            // Upload
             long uploadStart = System.nanoTime();
             FastGPUImage gpuInput = FastImageGPU.upload(gpu, FastImage.fromBufferedImage(bi));
             FastGPUImage gpuOutput = gpu.allocImage(width, height, Format.RGBA8);
             long uploadEnd = System.nanoTime();
 
-            // Compile Kernel
             String glslSource = """
                     #version 450
                     layout(local_size_x = 16, local_size_y = 16) in;
@@ -70,20 +60,17 @@ public class FastImageGPUDemo {
                         imageStore(outputImg, pos, vec4(gray, gray, gray, color.a));
                     }
                     """;
-            
+
             FastGPUKernel kernel = gpu.compile("grayscale", glslSource, KernelLanguage.GLSL_COMPUTE);
 
-            // Dispatch
             long gpuComputeStart = System.nanoTime();
             gpu.dispatch(
                     kernel,
                     DispatchSize.of2D((width + 15) / 16, (height + 15) / 16),
                     KernelArgs.of(gpuInput, gpuOutput)
             );
-            // In a real system, we'd vkQueueWaitIdle here, but our JNI dispatch waits internally
             long gpuComputeEnd = System.nanoTime();
 
-            // Download
             long downloadStart = System.nanoTime();
             FastImage invertedCpuImg = FastImageGPU.download(gpuOutput);
             long downloadEnd = System.nanoTime();
@@ -107,7 +94,6 @@ public class FastImageGPUDemo {
             }
             System.out.println("==========================================");
 
-            // Cleanup
             gpuInput.free();
             gpuOutput.free();
             kernel.destroy();

@@ -23,7 +23,7 @@
     <dependencies>
         <dependency>
             <groupId>com.github.andrestubbe</groupId>
-            <artifactId>FastGPU</artifactId>
+            <artifactId>fastgpu</artifactId>
             <version>0.1.0</version>
         </dependency>
         <dependency>
