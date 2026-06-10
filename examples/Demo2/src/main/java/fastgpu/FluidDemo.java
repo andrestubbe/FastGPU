@@ -39,7 +39,7 @@ public class FluidDemo extends JPanel {
                     float padding1;
                 };
 
-                layout(rgba8, binding = 1) uniform writeonly image2D outputImg;
+                layout(rgba8, binding = 4) uniform writeonly image2D outputImg;
 
                 vec3 palette(float x) {
                     const float PI = 3.14159265;
