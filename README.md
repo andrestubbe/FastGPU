@@ -23,7 +23,10 @@ FastGPU provides a high-performance bridge to modern graphics APIs for complex p
 
 - [Features](#features)
 - [Installation](#installation)
+- [Documentation](#documentation)
+- [Platform Support](#platform-support)
 - [License](#license)
+- [Related Projects](#related-projects)
 
 ---
 
