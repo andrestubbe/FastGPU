@@ -8,8 +8,7 @@
 
 ---
 
-**? Advanced GPU-accelerated computing and rendering for the FastJava ecosystem. Harness the power of DirectX, OpenCL, and
-Vulkan directly from Java.**
+**🎮 Advanced GPU-accelerated computing and rendering for the FastJava ecosystem. Harness the power of DirectX, OpenCL, and Vulkan directly from Java.**
 
 FastGPU provides a high-performance bridge to modern graphics APIs for complex parallel computations and real-time rendering.
 
@@ -30,10 +29,10 @@ FastGPU provides a high-performance bridge to modern graphics APIs for complex p
 
 ## Features
 
-- **ðŸš€ DirectX Integration**: High-speed rendering and compute via D3D11/D3D12.
-- **? OpenCL Support**: Cross-platform GPU-accelerated parallel computing.
-- **ðŸš€ Zero-Copy Buffers**: Efficient data sharing between CPU and GPU.
-- **?âš¡ High Throughput**: Optimized for real-time vision and rendering pipelines.
+- **⚡ DirectX Integration**: High-speed rendering and compute via D3D11/D3D12.
+- **⚙️ OpenCL Support**: Cross-platform GPU-accelerated parallel computing.
+- **📥 Zero-Copy Buffers**: Efficient data sharing between CPU and GPU.
+- **⏱️ High Throughput**: Optimized for real-time vision and rendering pipelines.
 
 ---
 
@@ -99,10 +98,8 @@ dependencies {
 
 Download the latest JARs directly to add them to your classpath:
 
-1. ðŸš€ **[fastgpu-0.1.0.jar](https://github.com/andrestubbe/FastGPU/releases/download/0.1.0/fastgpu-0.1.0.jar)** (The
-   Core Library)
-2. ðŸš€ **[fastcore-0.1.0.jar](https://github.com/andrestubbe/FastCore/releases/download/0.1.0/fastcore-0.1.0.jar)** (
-   The Mandatory Native Loader)
+1. 📦 **[fastgpu-0.1.0.jar](https://github.com/andrestubbe/FastGPU/releases/download/0.1.0/fastgpu-0.1.0.jar)** (The Core Library)
+2. ⚙️ **[fastcore-0.1.0.jar](https://github.com/andrestubbe/FastCore/releases/download/0.1.0/fastcore-0.1.0.jar)** (The Mandatory Native Loader)
 
 ---
 
@@ -119,9 +116,9 @@ Download the latest JARs directly to add them to your classpath:
 
 | Platform      | Status            |
 |---------------|-------------------|
-| Windows 10/11 | ? Fully Supported |
-| Linux         | ðŸš€ Planned        |
-| macOS         | ðŸš€ Planned        |
+| Windows 10/11 | ✅ Fully Supported |
+| Linux         | 🔗 Planned        |
+| macOS         | 🔗 Planned        |
 
 ---
 
@@ -141,5 +138,5 @@ MIT License  See [LICENSE](LICENSE) for details.
 
 ---
 
-**Part of the FastJava Ecosystem**  *Making the JVM faster. Small package. Maximum speed. Zero bloat. ðŸš€ðŸš€*
+**Part of the FastJava Ecosystem** — *Making the JVM faster. Small package. Maximum speed. Zero bloat. 🚀📋*
 
