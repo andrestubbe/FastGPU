@@ -59,18 +59,18 @@ Standard Java graphics wrappers add heavy object overhead and JNI marshaling bot
 
 ## Key Features
 
-- **🌋 Vulkan Compute Engine**: Low-overhead SPIR-V compute pipeline dispatching for GGUF model offloading (**FastAIModel**).
-- **⚡ DirectX Integration**: High-speed rendering and compute via D3D11/D3D12 endpoints.
-- **⚙️ OpenCL & Intel Iris Support**: Universal GPU acceleration across integrated and discrete graphics cards.
-- **📥 Zero-Copy VRAM Buffers**: Efficient off-heap data sharing between CPU and GPU memory.
-- **📦 Pre-compiled Native Binaries**: Bundled high-performance C++ shared library (`fastgpu.dll`).
+- **🌋 Vulkan 1.3 & Apple Metal Compute Engine**: Low-overhead SPIR-V & Metal Shading Language (MSL) compute pipeline dispatching for local AI matrix acceleration (**FastAIModel** & **FastAI**).
+- **⚡ FlashAttention & Tensor Matrix Acceleration**: Fused compute kernels for 4-bit KV-cache and matrix multiplications on Intel Iris Xe, AMD Radeon, NVIDIA RTX, and Apple M1/M2/M3/M4 chips.
+- **⚙️ Cross-Platform Metal & OpenCL Support**: Universal GPU acceleration across integrated Intel Iris Xe graphics, discrete GPUs, and macOS Apple Silicon Unified Memory architectures.
+- **📥 Zero-Copy Unified Memory & VRAM Buffers**: Exchange off-heap memory buffers directly between JVM RAM and GPU VRAM at up to 300 GB/s.
+- **📦 Bundled Multi-Platform Binaries**: Pre-compiled native C++ libraries (`fastgpu.dll`, `libfastgpu.dylib`, `libfastgpu.so`).
 
 ---
 
 ## Real-World Use Cases
 
-- 🧠 **LLM GGUF Model Offloading**: Accelerate **[FastAIModel](https://github.com/andrestubbe/FastAIModel)** transformer matrix multiplications on Intel Iris Xe / Intel Arc GPUs via Vulkan.
-- 🌊 **Real-Time Fluid Simulation**: Run parallel grid physics and particle simulations directly on GPU compute shaders (`run-demo2.bat`).
+- 🧠 **LLM GGUF Model Offloading**: Accelerate **[FastAIModel](https://github.com/andrestubbe/FastAIModel)** and **[FastAI](https://github.com/andrestubbe/FastAI)** transformer matrix multiplications on Intel Iris Xe, NVIDIA RTX, and Apple Silicon (M1–M4) via Vulkan & Metal.
+- 🌊 **Real-Time Particle & Grid Physics**: Run parallel 3D fluid simulations and grid physics directly on GPU compute shaders (`run-demo2.bat`).
 - 🎨 **High-Performance Vision Rendering**: Render 4K image frames from **[FastImage](https://github.com/andrestubbe/FastImage)** without CPU bottlenecks.
 
 ---
