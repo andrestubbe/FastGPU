@@ -1,28 +1,45 @@
-# FastGPU 0.1.0 [ALPHA-2026-05-22] — High-Performance Native GPU Acceleration for Java
+# FastGPU 0.1.1 [ALPHA-2026-08] — High-Performance Native GPU Acceleration for Java
 
-[![Status](https://img.shields.io/badge/status-0.1.0-brightgreen.svg)](https://github.com/andrestubbe/FastGPU/releases/tag/0.1.0)
+[![Status](https://img.shields.io/badge/status-0.1.1-brightgreen.svg)](https://github.com/andrestubbe/FastGPU/releases/tag/0.1.1)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Java](https://img.shields.io/badge/Java-17+-blue.svg)](https://www.java.com)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010+-lightgrey.svg)]()
-[![JitPack](https://img.shields.io/badge/JitPack-ready-green.svg)](https://jitpack.io/#andrestubbe/FastGPU)
+[![JitPack](https://img.shields.io/badge/JitPack-0.1.1-green.svg)](https://jitpack.io/#andrestubbe/FastGPU)
 
 ---
 
-**🎮 Advanced GPU-accelerated computing and rendering for the FastJava ecosystem. Harness the power of DirectX, OpenCL, and Vulkan directly from Java.**
+**🎮 Advanced GPU-accelerated computing and rendering for the FastJava ecosystem. Harness the power of Vulkan Compute, DirectX, and OpenCL directly from Java.**
 
-FastGPU provides a high-performance bridge to modern graphics APIs for complex parallel computations and real-time rendering.
+FastGPU provides a high-performance bridge to modern graphics APIs for complex parallel computations, tensor matrix operations, and real-time GPU rendering pipelines on Intel Iris, AMD Radeon, and NVIDIA GeForce hardware.
 
----
-
-[![FastGPU Showcase](docs/screenshot2.png)](https://www.youtube.com/watch?v=BZsqQl7WqWk)
+![Showcase](https://raw.githubusercontent.com/andrestubbe/FastGPU/main/docs/screenshot2.png)
 
 ---
 
+## Quick Start — Example
+
+```java
+import fastgpu.FastGPU;
+
+public class Demo {
+    public static void main(String[] args) {
+        // Initialize native Vulkan / DirectX compute context
+        FastGPU gpu = new FastGPU();
+        System.out.println("GPU Initialized: " + gpu.getDeviceName());
+    }
+}
+```
+
+---
 
 ## Table of Contents
 
-- [Features](#features)
+- [Quick Start](#quick-start--example)
+- [Why FastGPU?](#why-fastgpu)
+- [Key Features](#key-features)
+- [Real-World Use Cases](#real-world-use-cases)
 - [Installation](#installation)
+- [Demo Launchers](#demo-launchers)
 - [Documentation](#documentation)
 - [Platform Support](#platform-support)
 - [License](#license)
@@ -30,12 +47,31 @@ FastGPU provides a high-performance bridge to modern graphics APIs for complex p
 
 ---
 
-## Features
+## Why FastGPU?
 
-- **⚡ DirectX Integration**: High-speed rendering and compute via D3D11/D3D12.
-- **⚙️ OpenCL Support**: Cross-platform GPU-accelerated parallel computing.
-- **📥 Zero-Copy Buffers**: Efficient data sharing between CPU and GPU.
-- **⏱️ High Throughput**: Optimized for real-time vision and rendering pipelines.
+Standard Java graphics wrappers add heavy object overhead and JNI marshaling bottlenecks. FastGPU solves this by:
+
+- **Vulkan Compute & OpenCL Backend**: Offload parallel matrix operations and GLSL compute kernels directly onto Intel Iris, AMD Radeon, and NVIDIA GeForce GPUs.
+- **DirectX D3D11/D3D12 Acceleration**: Direct Windows graphics API bindings for zero-copy frame rendering.
+- **Zero-Copy Native Buffers**: Exchange off-heap memory buffers directly between JVM RAM and GPU VRAM.
+
+---
+
+## Key Features
+
+- **🌋 Vulkan Compute Engine**: Low-overhead SPIR-V compute pipeline dispatching for GGUF model offloading (**FastAIModel**).
+- **⚡ DirectX Integration**: High-speed rendering and compute via D3D11/D3D12 endpoints.
+- **⚙️ OpenCL & Intel Iris Support**: Universal GPU acceleration across integrated and discrete graphics cards.
+- **📥 Zero-Copy VRAM Buffers**: Efficient off-heap data sharing between CPU and GPU memory.
+- **📦 Pre-compiled Native Binaries**: Bundled high-performance C++ shared library (`fastgpu.dll`).
+
+---
+
+## Real-World Use Cases
+
+- 🧠 **LLM GGUF Model Offloading**: Accelerate **[FastAIModel](https://github.com/andrestubbe/FastAIModel)** transformer matrix multiplications on Intel Iris Xe / Intel Arc GPUs via Vulkan.
+- 🌊 **Real-Time Fluid Simulation**: Run parallel grid physics and particle simulations directly on GPU compute shaders (`run-demo2.bat`).
+- 🎨 **High-Performance Vision Rendering**: Render 4K image frames from **[FastImage](https://github.com/andrestubbe/FastImage)** without CPU bottlenecks.
 
 ---
 
@@ -43,23 +79,17 @@ FastGPU provides a high-performance bridge to modern graphics APIs for complex p
 
 ### Prerequisites
 
-For runtime GLSL kernel compilation (v0.2+), FastGPU requires the Vulkan SDK to be installed on your system to provide the `glslc` compiler. You can install it easily via winget:
+For runtime GLSL kernel compilation, FastGPU recommends installing the Vulkan SDK:
 
 ```bash
 winget install KhronosGroup.VulkanSDK
 ```
 
-### Demo Launcher
-
-- `run-demo.bat` starts the existing FastGPU demo.
-- `run-demo2.bat` starts the new fast fluid demo from `examples/Demo2`.
-
 ### Option 1: Maven (Recommended)
 
-Add the JitPack repository and the dependencies to your `pom.xml`:
+Add the JitPack repository and the dependency stack to your `pom.xml`:
 
 ```xml
-
 <repositories>
     <repository>
         <id>jitpack.io</id>
@@ -68,19 +98,19 @@ Add the JitPack repository and the dependencies to your `pom.xml`:
 </repositories>
 
 <dependencies>
-<!-- FastGPU Library -->
-<dependency>
-    <groupId>com.github.andrestubbe</groupId>
-    <artifactId>fastgpu</artifactId>
-    <version>0.1.0</version>
-</dependency>
+    <!-- FastGPU Native Acceleration Engine -->
+    <dependency>
+        <groupId>com.github.andrestubbe</groupId>
+        <artifactId>fastgpu</artifactId>
+        <version>0.1.1</version>
+    </dependency>
 
-<!-- FastCore (Required Native Loader) -->
-<dependency>
-    <groupId>com.github.andrestubbe</groupId>
-    <artifactId>fastcore</artifactId>
-    <version>0.1.0</version>
-</dependency>
+    <!-- FastCore Unified JNI Loader -->
+    <dependency>
+        <groupId>com.github.andrestubbe</groupId>
+        <artifactId>FastCore</artifactId>
+        <version>0.1.0</version>
+    </dependency>
 </dependencies>
 ```
 
@@ -92,54 +122,53 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.andrestubbe:fastgpu:0.1.0'
-    implementation 'com.github.andrestubbe:fastcore:0.1.0'
+    implementation 'com.github.andrestubbe:fastgpu:0.1.1'
+    implementation 'com.github.andrestubbe:FastCore:0.1.0'
 }
 ```
 
-### Option 3: Direct Download (No Build Tool)
+---
 
-Download the latest JARs directly to add them to your classpath:
+## Demo Launchers
 
-1. 📦 **[fastgpu-0.1.0.jar](https://github.com/andrestubbe/FastGPU/releases/download/0.1.0/fastgpu-0.1.0.jar)** (The Core Library)
-2. ⚙️ **[fastcore-0.1.0.jar](https://github.com/andrestubbe/FastCore/releases/download/0.1.0/fastcore-0.1.0.jar)** (The Mandatory Native Loader)
+- `run-demo.bat` — Launches the standard FastGPU compute shader test.
+- `run-demo2.bat` — Launches the real-time fast fluid physics demo from `examples/Demo2`.
+- `run-mandelbrot.bat` — Launches the GPU-accelerated Mandelbrot fractal renderer.
 
 ---
 
 ## Documentation
 
-* **[COMPILE.md](COMPILE.md)**: Full compilation guide (MSVC C++17 build chain + JNI Setup).
-* **[REFERENCE.md](docs/REFERENCE.md)**: Full API descriptions, border configurations, and codepoint index.
-* **[PHILOSOPHY.md](docs/PHILOSOPHY.md)**: The engineering rationale for zero-allocation performance.
-* **[ROADMAP.md](docs/ROADMAP.md)**: Future milestones and planned features.
+* **[CHANGELOG.md](docs/CHANGELOG.md)**: Release notes and version history.
+* **[REFERENCE.md](docs/REFERENCE.md)**: Core API reference manual.
+* **[PHILOSOPHY.md](docs/PHILOSOPHY.md)**: Engineering rationale for low-overhead GPU acceleration.
+* **[COMPILE.md](docs/COMPILE.md)**: Full compilation guide (MSVC C++17 build chain + Vulkan SDK).
+* **[ROADMAP.md](docs/ROADMAP.md)**: Future development goals.
 
 ---
 
 ## Platform Support
 
-| Platform      | Status            |
-|---------------|-------------------|
-| Windows 10/11 | ✅ Fully Supported |
-| Linux         | 🔗 Planned        |
-| macOS         | 🔗 Planned        |
+| Platform | Status |
+|:---|:---:|
+| Windows 10/11 (x64) | ✅ Fully Supported (Vulkan, DirectX, OpenCL) |
+| Linux | 🔄 Planned (Vulkan, OpenCL) |
+| macOS | 🔄 Planned (Metal) |
 
 ---
 
 ## License
 
-MIT License  See [LICENSE](LICENSE) for details.
+MIT License — See [LICENSE](LICENSE) file for details.
 
 ---
 
 ## Related Projects
 
-- [FastCore](https://github.com/andrestubbe/FastCore)  Native Library Loader for Java
-- [FastAudioPlayer](https://github.com/andrestubbe/FastAudioPlayer)  Native Windows WASAPI Audio Playback for Java
-- [FastTTS](https://github.com/andrestubbe/FastTTS)  High-Performance Native Windows TTS API for Java
-- [FastSTT](https://github.com/andrestubbe/FastSTT)  Ultra-Fast Native Speech-to-Text for Java
-- [FastWakeWord](https://github.com/andrestubbe/FastWakeWord)
+- [FastCore](https://github.com/andrestubbe/FastCore) — Native JNI loader for FastJava libraries
+- [FastAIModel](https://github.com/andrestubbe/FastAIModel) — Native local LLM and embedding inference engine
+- [FastImage](https://github.com/andrestubbe/FastImage) — Native SIMD image processing engine
 
 ---
 
-**Part of the FastJava Ecosystem** — *Making the JVM faster. Small package. Maximum speed. Zero bloat. 🚀📋*
-
+Part of the FastJava Ecosystem — Making the JVM faster. Small package. Maximum speed. Zero bloat. ⚡

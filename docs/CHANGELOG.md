@@ -1,9 +1,5 @@
-# Changelog
+# FastGPU Changelog
 
-All notable changes to this project will be documented in this file.
-
-## [0.1.0] - 2026-05-23
-
-### Added
-- Initial release
-- Standardized FastJava ecosystem module
+## [0.1.1] - 2026-08-14
+- Added Vulkan Compute GGUF offloading support for FastAIModel.
+- Expanded documentation manual set.
