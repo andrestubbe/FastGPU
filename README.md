@@ -16,16 +16,21 @@ FastGPU provides a high-performance bridge to modern graphics APIs for complex p
 
 ---
 
-## Quick Start — Example
+## Quick Start
 
 ```java
 import fastgpu.FastGPU;
 
-public class Demo {
+public class FastGpuDemo {
     public static void main(String[] args) {
-        // Initialize native Vulkan / DirectX compute context
-        FastGPU gpu = new FastGPU();
-        System.out.println("GPU Initialized: " + gpu.getDeviceName());
+        // Initialize native Vulkan / Metal compute context
+        try (FastGPU gpu = new FastGPU()) {
+            System.out.println("==================================================");
+            System.out.println("⚡ FastGPU Engine Initialized Successfully");
+            System.out.println("Active Hardware GPU: " + gpu.getDeviceName());
+            System.out.println("Vulkan Compute API: " + gpu.getVulkanVersion());
+            System.out.println("==================================================");
+        }
     }
 }
 ```
