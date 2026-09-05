@@ -1,8 +1,15 @@
-﻿target/
+target/
 build/
+out/
+bin/
+*.obj
+*.lib
+*.exp
 *.so
 *.dylib
+*.dll
+!src/main/resources/native/*.dll
 *.class
 .idea/
 *.iml
-!src/main/resources/native/*.dll
+*.zip
