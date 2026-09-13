@@ -1,10 +1,10 @@
-# FastGPU 0.1.1 [ALPHA-2026-08] — High-Performance Native GPU Acceleration for Java
-
-[![Status](https://img.shields.io/badge/status-0.1.1-brightgreen.svg)](https://github.com/andrestubbe/FastGPU/releases/tag/0.1.1)
+# FastGPU 0.1.2 [2026-09] — High-Performance Native GPU Acceleration for Java
+ 
+[![Status](https://img.shields.io/badge/status-0.1.2-brightgreen.svg)](https://github.com/andrestubbe/FastGPU/releases/tag/0.1.2)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Java](https://img.shields.io/badge/Java-17+-blue.svg)](https://www.java.com)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010+-lightgrey.svg)]()
-[![JitPack](https://img.shields.io/badge/JitPack-0.1.1-green.svg)](https://jitpack.io/#andrestubbe/FastGPU)
+[![JitPack](https://img.shields.io/badge/JitPack-0.1.2-green.svg)](https://jitpack.io/#andrestubbe/FastGPU)
 
 ---
 
@@ -23,12 +23,10 @@ import fastgpu.FastGPU;
 
 public class FastGpuDemo {
     public static void main(String[] args) {
-        // Initialize native Vulkan / Metal compute context
-        try (FastGPU gpu = new FastGPU()) {
+        // Initialize native Vulkan compute context
+        try (FastGPU gpu = FastGPU.openDefault()) {
             System.out.println("==================================================");
             System.out.println("⚡ FastGPU Engine Initialized Successfully");
-            System.out.println("Active Hardware GPU: " + gpu.getDeviceName());
-            System.out.println("Vulkan Compute API: " + gpu.getVulkanVersion());
             System.out.println("==================================================");
         }
     }
@@ -117,7 +115,7 @@ Add the JitPack repository and the dependency stack to your `pom.xml`:
     <dependency>
         <groupId>com.github.andrestubbe</groupId>
         <artifactId>fastgpu</artifactId>
-        <version>0.1.1</version>
+        <version>0.1.2</version>
     </dependency>
 
     <!-- FastCore Unified JNI Loader -->
@@ -137,7 +135,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.andrestubbe:fastgpu:0.1.1'
+    implementation 'com.github.andrestubbe:fastgpu:0.1.2'
     implementation 'com.github.andrestubbe:FastCore:0.1.0'
 }
 ```

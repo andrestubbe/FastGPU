@@ -1,37 +1,54 @@
 # FastGPU API Reference Manual
 
-`FastGPU` provides native Vulkan 1.3, Apple Metal, DirectX, and OpenCL compute capabilities for Java applications.
+`FastGPU` provides native Vulkan 1.3 compute capabilities, buffer management, and quantized GEMV acceleration for Java applications.
 
 ---
 
-## Class: `fastgpu.FastGPU`
+## Interface: `fastgpu.FastGPU`
 
 Implements `AutoCloseable` for deterministic GPU resource management.
 
-### Constructors
+### Factory Methods
 
-- `public FastGPU()`  
-  Initializes the native C++ Vulkan 1.3 / Metal GPU compute context and retrieves active device information.
+- `static FastGPU openDefault()`  
+  Initializes the native Vulkan compute context using the best available physical device (`FastGPUBackend.AUTO`).
 
-### Methods
+- `static FastGPU open(FastGPUBackend backend)`  
+  Initializes the native context targeting a specific backend.
 
-- `public String getDeviceName()`  
-  Returns the name of the active physical GPU hardware (e.g. `"Intel(R) Iris(R) Xe Graphics"`, `"NVIDIA GeForce RTX 4090"`, `"Apple M3 Pro"`).
+### Buffer & Image Management
 
-- `public String getVulkanVersion()`  
-  Returns the active Vulkan API version string supported by the driver (e.g. `"1.3.280"`).
+- `FastGPUBuffer allocFloatBuffer(int elements)`  
+  Allocates a host-visible, device-accessible float storage buffer.
 
-- `public long getNativeHandle()`  
-  Returns the raw memory pointer (`uintptr_t`) to the underlying C++ `FastGPUContext` object.
+- `FastGPUBuffer allocByteBuffer(int bytes)`  
+  Allocates a raw byte storage buffer.
 
-- `public void close()`  
-  Frees all native GPU compute contexts, SPIR-V pipeline caches, and Vulkan device memory handles.
+- `FastGPUBuffer importHostBuffer(long nativeMemoryAddress, long bytes)`  
+  Imports or views host memory directly into a GPU buffer handle.
 
----
+- `FastGPUImage allocImage(int width, int height, Format format)`  
+  Allocates a GPU storage image for parallel compute shaders.
 
-## Native C++ API (`fastgpu.dll` / `libfastgpu.dylib`)
+### Compute Shader Dispatching
 
-- `FastGPU_Init()` — Creates Vulkan instance, physical device selector, and logical compute queue.
-- `FastGPU_GetDeviceName()` — Fills target string buffer with device hardware string.
-- `FastGPU_DispatchCompute()` — Submits SPIR-V / Metal MSL compute shader workloads to the GPU queue.
-- `FastGPU_Free()` — Destroys Vulkan compute pipelines and command pools.
+- `FastGPUKernel compile(String name, String source, KernelLanguage lang)`  
+  Compiles a GLSL (`KernelLanguage.GLSL_COMPUTE`) or SPIR-V kernel into a reusable Vulkan compute pipeline.
+
+- `void dispatch(FastGPUKernel kernel, DispatchSize size, KernelArgs args)`  
+  Dispatches compute workgroups to the GPU execution units via `vkCmdDispatch`.
+
+### High-Level LLM / Transformer GEMV Kernels
+
+- `void gemvQ4K(FastGPUBuffer weights, FastGPUBuffer input, FastGPUBuffer output, int rows, int cols)`  
+  Dispatches fused matrix-vector multiplication for GGUF Type 12 (`Q4_K`) weights.
+
+- `void gemvQ8_0(FastGPUBuffer weights, FastGPUBuffer input, FastGPUBuffer output, int rows, int cols)`  
+  Dispatches fused matrix-vector multiplication for GGUF Type 8 (`Q8_0`) weights.
+
+- `void gemvQ4_0(FastGPUBuffer weights, FastGPUBuffer input, FastGPUBuffer output, int rows, int cols)`  
+  Dispatches fused matrix-vector multiplication for GGUF Type 2 (`Q4_0`) weights.
+
+- `void close()`  
+  Frees all native GPU compute contexts, compiled pipelines, and Vulkan device memory handles.
+
