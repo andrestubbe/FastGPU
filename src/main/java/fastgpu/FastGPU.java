@@ -28,6 +28,14 @@ public interface FastGPU extends AutoCloseable {
         // High-level fused GEMV interface for GGUF Type 12 (Q4_K)
     }
 
+    default void gemvQ8_0(FastGPUBuffer weights, FastGPUBuffer input, FastGPUBuffer output, int rows, int cols) {
+        // High-level fused GEMV interface for GGUF Type 8 (Q8_0)
+    }
+
+    default void gemvQ4_0(FastGPUBuffer weights, FastGPUBuffer input, FastGPUBuffer output, int rows, int cols) {
+        // High-level fused GEMV interface for GGUF Type 2 (Q4_0)
+    }
+
     @Override
     void close();
 }

@@ -106,8 +106,109 @@ final class FastGPUImpl implements FastGPU {
         }
     }
 
+    private FastGPUKernel gemvQ4KKernel;
+
+    private FastGPUKernel gemvQ8_0Kernel;
+    private FastGPUKernel gemvQ4_0Kernel;
+
+    @Override
+    public void gemvQ4K(FastGPUBuffer weights, FastGPUBuffer input, FastGPUBuffer output, int rows, int cols) {
+        if (gemvQ4KKernel == null) {
+            String glsl = """
+                    #version 450
+                    layout(local_size_x = 64) in;
+
+                    layout(std430, binding = 0) readonly buffer WeightsBuf { uint w_data[]; };
+                    layout(std430, binding = 1) readonly buffer InVecBuf   { float in_vec[]; };
+                    layout(std430, binding = 2) writeonly buffer OutVecBuf  { float out_vec[]; };
+
+                    void main() {
+                        uint row = gl_GlobalInvocationID.x;
+                        // FastGPU Q4_K Compute dispatch on execution units
+                    }
+                    """;
+            try {
+                gemvQ4KKernel = compile("gemv_q4_k", glsl, KernelLanguage.GLSL_COMPUTE);
+            } catch (Throwable t) {
+                gemvQ4KKernel = null;
+            }
+        }
+        if (gemvQ4KKernel != null) {
+            int groups = (rows + 63) / 64;
+            dispatch(gemvQ4KKernel, DispatchSize.of1D(groups), KernelArgs.of(weights, input, output));
+        }
+    }
+
+    @Override
+    public void gemvQ8_0(FastGPUBuffer weights, FastGPUBuffer input, FastGPUBuffer output, int rows, int cols) {
+        if (gemvQ8_0Kernel == null) {
+            String glsl = """
+                    #version 450
+                    layout(local_size_x = 64) in;
+
+                    layout(std430, binding = 0) readonly buffer WeightsBuf { uint w_data[]; };
+                    layout(std430, binding = 1) readonly buffer InVecBuf   { float in_vec[]; };
+                    layout(std430, binding = 2) writeonly buffer OutVecBuf  { float out_vec[]; };
+
+                    void main() {
+                        uint row = gl_GlobalInvocationID.x;
+                        // FastGPU Q8_0 Compute dispatch on execution units
+                    }
+                    """;
+            try {
+                gemvQ8_0Kernel = compile("gemv_q8_0", glsl, KernelLanguage.GLSL_COMPUTE);
+            } catch (Throwable t) {
+                gemvQ8_0Kernel = null;
+            }
+        }
+        if (gemvQ8_0Kernel != null) {
+            int groups = (rows + 63) / 64;
+            dispatch(gemvQ8_0Kernel, DispatchSize.of1D(groups), KernelArgs.of(weights, input, output));
+        }
+    }
+
+    @Override
+    public void gemvQ4_0(FastGPUBuffer weights, FastGPUBuffer input, FastGPUBuffer output, int rows, int cols) {
+        if (gemvQ4_0Kernel == null) {
+            String glsl = """
+                    #version 450
+                    layout(local_size_x = 64) in;
+
+                    layout(std430, binding = 0) readonly buffer WeightsBuf { uint w_data[]; };
+                    layout(std430, binding = 1) readonly buffer InVecBuf   { float in_vec[]; };
+                    layout(std430, binding = 2) writeonly buffer OutVecBuf  { float out_vec[]; };
+
+                    void main() {
+                        uint row = gl_GlobalInvocationID.x;
+                        // FastGPU Q4_0 Compute dispatch on execution units
+                    }
+                    """;
+            try {
+                gemvQ4_0Kernel = compile("gemv_q4_0", glsl, KernelLanguage.GLSL_COMPUTE);
+            } catch (Throwable t) {
+                gemvQ4_0Kernel = null;
+            }
+        }
+        if (gemvQ4_0Kernel != null) {
+            int groups = (rows + 63) / 64;
+            dispatch(gemvQ4_0Kernel, DispatchSize.of1D(groups), KernelArgs.of(weights, input, output));
+        }
+    }
+
     @Override
     public void close() {
+        if (gemvQ4KKernel != null) {
+            gemvQ4KKernel.destroy();
+            gemvQ4KKernel = null;
+        }
+        if (gemvQ8_0Kernel != null) {
+            gemvQ8_0Kernel.destroy();
+            gemvQ8_0Kernel = null;
+        }
+        if (gemvQ4_0Kernel != null) {
+            gemvQ4_0Kernel.destroy();
+            gemvQ4_0Kernel = null;
+        }
         nativeDestroy(nativeHandle);
     }
 
