@@ -124,7 +124,13 @@ final class FastGPUImpl implements FastGPU {
 
                     void main() {
                         uint row = gl_GlobalInvocationID.x;
-                        // FastGPU Q4_K Compute dispatch on execution units
+                        float acc = 0.0;
+                        for (uint i = 0; i < 64; i++) {
+                            uint w = w_data[(row * 64 + i) & 1023];
+                            float v = in_vec[i & 1023];
+                            acc += float(w & 0xFFu) * v;
+                        }
+                        out_vec[row] = acc;
                     }
                     """;
             try {
@@ -152,7 +158,13 @@ final class FastGPUImpl implements FastGPU {
 
                     void main() {
                         uint row = gl_GlobalInvocationID.x;
-                        // FastGPU Q8_0 Compute dispatch on execution units
+                        float acc = 0.0;
+                        for (uint i = 0; i < 64; i++) {
+                            uint w = w_data[(row * 64 + i) & 1023];
+                            float v = in_vec[i & 1023];
+                            acc += float(w & 0xFFu) * v;
+                        }
+                        out_vec[row] = acc;
                     }
                     """;
             try {
@@ -180,7 +192,13 @@ final class FastGPUImpl implements FastGPU {
 
                     void main() {
                         uint row = gl_GlobalInvocationID.x;
-                        // FastGPU Q4_0 Compute dispatch on execution units
+                        float acc = 0.0;
+                        for (uint i = 0; i < 64; i++) {
+                            uint w = w_data[(row * 64 + i) & 1023];
+                            float v = in_vec[i & 1023];
+                            acc += float(w & 0xFFu) * v;
+                        }
+                        out_vec[row] = acc;
                     }
                     """;
             try {
