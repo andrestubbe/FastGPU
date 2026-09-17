@@ -58,6 +58,13 @@ Standard Java graphics wrappers add heavy object overhead and JNI marshaling bot
 - **DirectX D3D11/D3D12 Acceleration**: Direct Windows graphics API bindings for zero-copy frame rendering.
 - **Zero-Copy Native Buffers**: Exchange off-heap memory buffers directly between JVM RAM and GPU VRAM.
 
+| Feature | Java2D / JavaFX GPU | LWJGL / JOGL | FastGPU |
+|:---|:---|:---|:---|
+| **Compute Shaders** | Not supported (Graphics only)| Complex C API bindings | **Vulkan 1.3 SPIR-V & Apple Metal compute** |
+| **Buffer Dispatch** | Full CPU-to-JVM copies | Manual pointer management | **Direct zero-copy off-heap VRAM exchange** |
+| **Local AI Offload** | Not supported | Heavy custom integration | **Built-in FlashAttention & INT4 KV-cache** |
+| **Object Overhead** | High (Scenegraph nodes) | C-struct allocations | **Zero GC native execution pipeline** |
+
 ---
 
 ## Key Features
