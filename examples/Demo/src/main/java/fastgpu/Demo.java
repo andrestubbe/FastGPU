@@ -7,7 +7,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 
-public class MandelbrotDemo extends JPanel {
+public class Demo extends JPanel {
 
     private final FastGPU gpu;
     private final FastGPUKernel kernel;
@@ -46,7 +46,7 @@ public class MandelbrotDemo extends JPanel {
     private int frameCount = 0;
     private JFrame parentFrame;
 
-    public MandelbrotDemo(JFrame frame) {
+    public Demo(JFrame frame) {
         this.parentFrame = frame;
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
 
@@ -272,7 +272,7 @@ public class MandelbrotDemo extends JPanel {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("FastGPU Real-Time Mandelbrot");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            MandelbrotDemo demo = new MandelbrotDemo(frame);
+            Demo demo = new Demo(frame);
             frame.add(demo);
             frame.pack();
             frame.setLocationRelativeTo(null);

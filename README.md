@@ -41,8 +41,9 @@ public class FastGpuDemo {
 - [Why FastGPU?](#why-fastgpu)
 - [Key Features](#key-features)
 - [Real-World Use Cases](#real-world-use-cases)
+- [Performance Benchmarks](#performance-benchmarks-jmh)
+- [Technical Demos & Benchmarks](#technical-demos--benchmarks)
 - [Installation](#installation)
-- [Demo Launchers](#demo-launchers)
 - [Documentation](#documentation)
 - [Platform Support](#platform-support)
 - [License](#license)
@@ -77,6 +78,14 @@ Standard Java graphics wrappers add heavy object overhead and JNI marshaling bot
 
 ---
 
+## Real-World Use Cases
+
+- 🧠 **LLM GGUF Model Offloading**: Accelerate **[FastAIModel](https://github.com/andrestubbe/FastAIModel)** and **[FastAI](https://github.com/andrestubbe/FastAI)** transformer matrix multiplications on Intel Iris Xe, NVIDIA RTX, and Apple Silicon (M1–M4) via Vulkan & Metal.
+- 🌊 **Real-Time Particle & Grid Physics**: Run parallel 3D fluid simulations and grid physics directly on GPU compute shaders (`run-demo2.bat`).
+- 🎨 **High-Performance Vision Rendering**: Render 4K image frames from **[FastImage](https://github.com/andrestubbe/FastImage)** without CPU bottlenecks.
+
+---
+
 ## Performance Benchmarks (JMH)
 
 Official Java Microbenchmark Harness (JMH) throughput metrics comparing standard Java off-heap operations against FastGPU zero-copy VRAM dispatching:
@@ -87,11 +96,15 @@ Official Java Microbenchmark Harness (JMH) throughput metrics comparing standard
 | **Vulkan 1.3 SPIR-V Kernel Dispatch** | `sample` | **< 0.04 ms latency** | **12.5x faster** |
 | **Apple Silicon Metal Compute Pipeline** | `thrpt` | **2,850,110,000 ops/sec** | **25.2x faster** |
 
-## Real-World Use Cases
+## Technical Demos & Benchmarks
 
-- 🧠 **LLM GGUF Model Offloading**: Accelerate **[FastAIModel](https://github.com/andrestubbe/FastAIModel)** and **[FastAI](https://github.com/andrestubbe/FastAI)** transformer matrix multiplications on Intel Iris Xe, NVIDIA RTX, and Apple Silicon (M1–M4) via Vulkan & Metal.
-- 🌊 **Real-Time Particle & Grid Physics**: Run parallel 3D fluid simulations and grid physics directly on GPU compute shaders (`run-demo2.bat`).
-- 🎨 **High-Performance Vision Rendering**: Render 4K image frames from **[FastImage](https://github.com/andrestubbe/FastImage)** without CPU bottlenecks.
+Run standalone verification demos or execute JMH throughput benchmarks:
+
+| Type | Target / Launcher | Source File | Description |
+| :--- | :--- | :--- | :--- |
+| **Interactive Demo** | [`run-demo.bat`](run-demo.bat) | [`Demo.java`](examples/Demo/src/main/java/fastgpu/Demo.java) | Real-time GPU compute Mandelbrot renderer with 4xSSAA anti-aliasing |
+| **Fluid Simulation Demo** | [`run-demo2.bat`](run-demo2.bat) | [`FluidDemo.java`](examples/Demo2/src/main/java/fastgpu/FluidDemo.java) | Real-time parallel 3D fluid dynamics and particle physics compute shader |
+| **Throughput Benchmark** | [`run-benchmark.bat`](run-benchmark.bat) | [`Benchmark.java`](examples/Benchmark/src/main/java/fastgpu/benchmark/Benchmark.java) | JMH benchmark evaluating Vulkan GPU initialization and device queries |
 
 ---
 
@@ -146,14 +159,6 @@ dependencies {
     implementation 'com.github.andrestubbe:FastCore:0.1.0'
 }
 ```
-
----
-
-## Demo Launchers
-
-- `run-demo.bat` — Launches the standard FastGPU compute shader test.
-- `run-demo2.bat` — Launches the real-time fast fluid physics demo from `examples/Demo2`.
-- `run-mandelbrot.bat` — Launches the GPU-accelerated Mandelbrot fractal renderer.
 
 ---
 
